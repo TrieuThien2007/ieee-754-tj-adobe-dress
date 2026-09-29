@@ -25,16 +25,39 @@ uint8_t const bias = 127U;
  * Students should create or add any data structures needed.
  * Students should create or add any functions or classes they may need.
  */
+float calculate_mantissa(uint32_t const mantissa_bits) {
+    float mantissa = 0.0F;
+    float bit_value = 0.5F;
+
+    for (int8_t i = 22; i >= 0; i--) {
+        if ((mantissa_bits >> i) & 1U) {
+            mantissa += bit_value;
+        }
+
+        bit_value /= 2.0F;
+    }
+
+    return mantissa;
+}
+ 
 float ieee_754(uint32_t const data) {
     uint8_t const sign = (data >> 31) & 1U;
     uint8_t const exponent = (data >> 23) & 0xFFU;
     uint32_t const mantissa_bits = data & 0x7FFFFFU;
+    float const mantissa = calculate_mantissa(mantissa_bits);
+    float const leading_bit = (exponent == 0U) ? 0.0F : 1.0F;
+    int const actual_exponent = (exponent == 0U)
+    ? 1 - bias
+    : exponent - bias;
+    float const sign_value = (sign == 0U) ? 1.0F : -1.0F;
     float value;
-    // This will fail the tests. Students should do the proper IEEE-754 calculation per assignment
-    // using the 32 bit 'data' value passed into this function.
-    value = 1.23;
+    value = sign_value * (leading_bit + mantissa)
+    * pow(2.0F, actual_exponent);
+
     return value;
 }
+
+
 
 /*
  * *** STUDENTS SHOULD NOT NEED TO CHANGE THE CODE BELOW. IT IS A CUSTOM TEST HARNESS. ***
